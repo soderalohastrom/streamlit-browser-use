@@ -15,7 +15,7 @@ A Streamlit-based user interface for [browser-use](https://github.com/gregpr07/b
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/streamlit-browser-use.git
+git clone https://github.com/soderalohastrom/streamlit-browser-use.git
 cd streamlit-browser-use
 
 # Install dependencies
