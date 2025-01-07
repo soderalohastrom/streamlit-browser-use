@@ -7,7 +7,17 @@ from pathlib import Path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 from browser_use import Agent
+
+def get_llm(provider, model_name, temperature=0.0):
+    """Get LLM instance based on provider selection"""
+    if provider == "openai":
+        return ChatOpenAI(model=model_name, temperature=temperature)
+    elif provider == "anthropic":
+        return ChatAnthropic(model_name=model_name, temperature=temperature)
+    else:
+        raise ValueError(f"Unsupported provider: {provider}")
 
 # Set page config
 st.set_page_config(
@@ -159,8 +169,42 @@ def main():
                 log_container = st.empty()
             status_container = st.empty()
             
-            # Browser settings
+            # Settings sections
             st.markdown("### Settings")
+            
+            # LLM Configuration
+            st.markdown("**LLM Settings**")
+            col_provider, col_model, col_temp = st.columns(3)
+            with col_provider:
+                llm_provider = st.selectbox(
+                    "Provider",
+                    ["openai", "anthropic"],
+                    help="Select your preferred language model provider"
+                )
+            with col_model:
+                if llm_provider == "openai":
+                    model_name = st.selectbox(
+                        "Model",
+                        ["gpt-4o", "gpt-4o-2024-08-06", "gpt-4o-mini"],
+                        index=0
+                    )
+                elif llm_provider == "anthropic":
+                    model_name = st.selectbox(
+                        "Model",
+                        ["claude-3-5-sonnet-20241022", "claude-3-opus-20240229"],
+                        index=0
+                    )
+            with col_temp:
+                temperature = st.slider(
+                    "Temperature",
+                    min_value=0.0,
+                    max_value=1.0,
+                    value=0.0,
+                    step=0.1,
+                    help="Controls randomness in model outputs"
+                )
+            
+            st.markdown("---")
             
             # Browser viewport and mode
             st.markdown("**Browser Settings**")
@@ -210,12 +254,17 @@ def main():
                 )
             )
             
-            llm = ChatOpenAI(model='gpt-4o')
-            agent = Agent(
-                task=st.session_state.current_task,
-                llm=llm,
-                browser=browser,
-            )
+            # Initialize LLM with selected configuration
+            try:
+                llm = get_llm(llm_provider, model_name, temperature)
+                agent = Agent(
+                    task=st.session_state.current_task,
+                    llm=llm,
+                    browser=browser,
+                )
+            except Exception as e:
+                st.error(f"Error initializing LLM: {str(e)}")
+                return
             
             async def run_task():
                 try:
