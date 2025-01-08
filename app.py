@@ -59,6 +59,13 @@ st.markdown("""
         margin: 5px 0;
         font-size: 14px;
     }
+    .result-container {
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -88,11 +95,11 @@ FEATURED_EXAMPLES = {
         "description": "Search and sort products on Amazon",
         "task": "Go to amazon.com, search for laptop, sort by best rating, and give me the price of the first result"
     },
-    "Google Docs Letter": {
-        "file": "real_browser.py",
-        "description": "Write and save a document in Google Docs",
-        "task": "In docs.google.com write my Papa a quick thank you for everything letter and save the document as pdf"
-    },
+    # "Google Docs Letter": {
+    #     "file": "real_browser.py",
+    #     "description": "Write and save a document in Google Docs",
+    #     "task": "In docs.google.com write my Papa a quick thank you for everything letter and save the document as pdf"
+    # },
     "Multi-Tab Search": {
         "file": "multi-tab_handling.py",
         "description": "Handle multiple browser tabs",
@@ -210,9 +217,9 @@ def main():
             st.markdown("**Browser Settings**")
             col_w, col_h, col_mode = st.columns(3)
             with col_w:
-                viewport_width = st.number_input("Viewport Width", min_value=400, max_value=1920, value=1280)
+                viewport_width = st.number_input("Viewport Width", min_value=400, max_value=2560, value=1920)
             with col_h:
-                viewport_height = st.number_input("Viewport Height", min_value=300, max_value=1080, value=720)
+                viewport_height = st.number_input("Viewport Height", min_value=300, max_value=1440, value=1080)
             with col_mode:
                 headless = st.checkbox("Headless Mode", value=False, help="Run browser in background without UI")
             
@@ -337,6 +344,18 @@ def main():
                             f'<div class="viewport-container" style="height: {viewport_height}px;">' +
                             f'<img src="data:image/gif;base64,{gif_data}" ' +
                             f'style="width: {viewport_width}px; height: {viewport_height}px; object-fit: contain;">' +
+                            '</div>',
+                            unsafe_allow_html=True
+                        )
+                    
+                    # Display final result
+                    final_result = agent.history.final_result()
+                    if final_result:
+                        st.markdown("### Final Result")
+                        st.markdown(
+                            '<div class="result-container" style="background-color: #1e1e1e; '
+                            'color: #ffffff; border-radius: 5px; padding: 20px; margin: 10px 0;">'
+                            f'{final_result}'
                             '</div>',
                             unsafe_allow_html=True
                         )
